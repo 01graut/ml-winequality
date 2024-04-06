@@ -18,14 +18,14 @@ RUN cd /opt && wget https://apache.osuosl.org/spark/spark-2.4.5/spark-2.4.5-bin-
 RUN ln -s /opt/spark-2.4.5-bin-hadoop2.7 /opt/spark
 RUN (echo 'export SPARK_HOME=/opt/spark' >> ~/.bashrc && echo 'export PATH=$SPARK_HOME/bin:$PATH' >> ~/.bashrc && echo 'export PYSPARK_PYTHON=python3' >> ~/.bashrc)
 
-RUN mkdir /wineapp
-COPY wine_prediction_final.py /wineapp/ 
+RUN mkdir /app
+COPY src/Wine-quality-Inference.py /app/ 
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 RUN /bin/bash -c "source ~/.bashrc"
 RUN /bin/sh -c "source ~/.bashrc"
 
-WORKDIR /wineapp
+WORKDIR /app
 
-ENTRYPOINT ["/opt/spark/bin/spark-submit", "--packages", "org.apache.hadoop:hadoop-aws:2.7.7", "wine_prediction_final.py"]
+ENTRYPOINT ["/opt/spark/bin/spark-submit", "--packages", "org.apache.hadoop:hadoop-aws:2.7.7", "Wine-quality-Inference.py"]
