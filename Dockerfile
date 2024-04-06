@@ -1,31 +1,46 @@
-FROM centos:7
+# FROM ubuntu:noble-20240114
+FROM ubuntu:jammy-20240111
 
-RUN yum -y update && yum -y install python3 python3-dev python3-pip python3-virtualenv \
-	java-1.8.0-openjdk wget
 
-RUN python -V
-RUN python3 -V
+ENV DEBIAN_FRONTEND=noninteractive
 
-ENV PYSPARK_DRIVER_PYTHON python3
-ENV PYSPARK_PYTHON python3
+RUN apt-get update && apt-get install -y software-properties-common gcc && \
+    add-apt-repository -y ppa:deadsnakes/ppa
 
+RUN apt-get update && apt-get install -y python3.8 python3-distutils python3-pip python3-apt
+
+RUN apt-get install -y openjdk-8-jdk
+RUN apt-get install -y vim
+
+RUN java -version
+
+# SET ENV VARIABLES
+
+ENV JAVA_HOME /usr
+ENV LANG en_US.utf8
+ENV PYSPARK_PYTHON=/usr/bin/python3
+ENV PYSPARK_DRIVER_PYTHON=/usr/bin/python3
+RUN export JAVA_HOME
+RUN java -version
+
+
+# COPY CODE
+RUN mkdir /code
+WORKDIR /code
+RUN echo "$PWD"
+COPY requirements.txt requirements.txt
 RUN pip3 install --upgrade pip
-RUN pip3 install numpy panda
+RUN pip3 install cython
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-RUN cd /opt && wget https://apache.osuosl.org/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz && tar -xzf spark-2.4.5-bin-hadoop2.7.tgz && rm spark-2.4.5-bin-hadoop2.7.tgz
 
+COPY . .
 
-RUN ln -s /opt/spark-2.4.5-bin-hadoop2.7 /opt/spark
-RUN (echo 'export SPARK_HOME=/opt/spark' >> ~/.bashrc && echo 'export PATH=$SPARK_HOME/bin:$PATH' >> ~/.bashrc && echo 'export PYSPARK_PYTHON=python3' >> ~/.bashrc)
+RUN ["chmod", "-R", "u=rwX,g=rwX", "/tmp"]
+RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /code
+USER appuser
 
-RUN mkdir /app
-COPY src/Wine-quality-Inference.py /app/ 
+# ADD --chown=appuser:appuser code /code
+USER appuser
 
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
-
-RUN /bin/bash -c "source ~/.bashrc"
-RUN /bin/sh -c "source ~/.bashrc"
-
-WORKDIR /app
-
-ENTRYPOINT ["/opt/spark/bin/spark-submit", "--packages", "org.apache.hadoop:hadoop-aws:2.7.7", "Wine-quality-Inference.py"]
+CMD []
