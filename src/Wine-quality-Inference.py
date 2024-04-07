@@ -18,8 +18,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Initialize Spark Session
-    spark = SparkSession.builder.appName("WineQualityInference").getOrCreate()
+    # spark = SparkSession.builder.appName("WineQualityInference").getOrCreate()
 
+    spark = SparkSession.builder \
+    .appName("WineQualityInference") \
+    .config("spark.jars.packages", "org.apache.spark:spark-hadoop-cloud_2.12:3.3.0") \
+    .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem") \
+    .getOrCreate()
+    
     # Load the trained model
     # rfModel = RandomForestRegressor.load(args.model_path)
     # rfModel = RandomForestRegressor.load(args.model_path)
