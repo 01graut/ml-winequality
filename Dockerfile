@@ -43,4 +43,5 @@ USER appuser
 # ADD --chown=appuser:appuser code /code
 USER appuser
 
+ENTRYPOINT ["python3","src/Wine-quality-Inference.py"]
 CMD []
