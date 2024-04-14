@@ -52,8 +52,10 @@ if __name__ == "__main__":
     # Used copilot how to get rid of quotes from colum header
     new_column_names = [col_name.strip('"') for col_name in train_df.columns]
     train_df = train_df.toDF(*new_column_names)
+    # Based on the Correlation table dropping few columns
     train_df=train_df.drop("total sulfur dioxide","residual sugar")
     print(train_df.columns)
+    print(train_df.head(10))
 
     # Used copilot how to get rid of quotes from colum header
     # new_column_names = [col_name.strip('"') for col_name in test_df.columns]
@@ -65,8 +67,6 @@ if __name__ == "__main__":
 
     # Assemble features
     featureCols = train_df.columns[:-1]  # Assuming the last column is the label
-
-    # MINMAXSCALAR
 
     # Assemble features
     assembler = VectorAssembler(inputCols=featureCols, outputCol="assembledFeatures")
